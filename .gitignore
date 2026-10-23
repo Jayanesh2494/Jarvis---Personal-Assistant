@@ -1,0 +1,33 @@
+# Secrets and Environment Variables
+.env
+.env.*
+*.pem
+*.key
+cert.pem
+key.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Android & Gradle
+.gradle/
+build/
+*/build/
+app/build/
+*.apk
+*.aab
+local.properties
+.idea/
+*.iml
+.DS_Store
+
+# IDEs & System
+.vscode/
+Thumbs.db

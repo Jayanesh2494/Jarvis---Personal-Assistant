@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#00f2fe">
+  <meta name="description" content="JARVIS — Personal AI Assistant for productivity, voice interaction, task management, and LinkedIn drafting.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="JARVIS">
+
+  <title>JARVIS — Stark Industries AI Assistant</title>
+
+  <!-- PWA Manifest & Icons -->
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="./icons/icon-192.svg">
+
+  <!-- Google Fonts: Orbitron (HUD/Display) & Inter (Clean Content) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/dashboard.css">
+  <link rel="stylesheet" href="./css/modules.css">
+</head>
+<body class="stark-theme">
+
+  <!-- SYSTEM HUD HEADER -->
+  <header class="hud-header" id="hudHeader">
+    <div class="hud-brand">
+      <div class="reactor-mini" id="reactorMini" title="Stark Arc Core // Active">
+        <div class="reactor-core-ring"></div>
+        <div class="reactor-core-dot"></div>
+      </div>
+      <div class="brand-titles">
+        <h1 class="brand-title">JARVIS <span class="version-tag">MARK VII // OS 4.2</span></h1>
+        <div class="system-telemetry">
+          <span class="telemetry-item status-live"><span class="dot-live"></span>ONLINE</span>
+          <span class="telemetry-divider">//</span>
+          <span class="telemetry-item" id="sysClock">00:00:00</span>
+          <span class="telemetry-divider">//</span>
+          <span class="telemetry-item" id="sysDate">TODAY</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Header Action Controls -->
+    <div class="hud-controls">
+      <div class="offline-pill" id="offlineIndicator">
+        <span class="offline-dot"></span>
+        <span id="networkStatusText">ON-DEVICE</span>
+      </div>
+
+      <button class="hud-btn" id="ttsToggleBtn" title="Toggle Voice Vocalization" aria-label="Toggle Voice">
+        <span class="btn-icon">🔊</span>
+      </button>
+
+      <button class="hud-btn install-btn hidden" id="pwaInstallBtn" title="Install JARVIS as Standalone App">
+        <span class="btn-icon">📲</span>
+        <span class="btn-label">INSTALL</span>
+      </button>
+
+      <button class="hud-btn" id="quickVoiceBtn" title="Voice Interaction Studio">
+        <span class="btn-icon">🎙️</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN APPLICATION SHELL -->
+  <div class="app-layout">
+    
+    <!-- NAVIGATION SIDEBAR / MOBILE DOCK -->
+    <nav class="hud-nav" id="hudNav" aria-label="Main Navigation">
+      <ul class="nav-list">
+        <li class="nav-item active" data-tab="dashboard">
+          <a href="#dashboard" class="nav-link" id="tabDashboard">
+            <span class="nav-icon">⚡</span>
+            <span class="nav-label">COMMAND</span>
+          </a>
+        </li>
+        <li class="nav-item" data-tab="voice">
+          <a href="#voice" class="nav-link" id="tabVoice">
+            <span class="nav-icon">🎙️</span>
+            <span class="nav-label">NEURAL VOICE</span>
+          </a>
+        </li>
+        <li class="nav-item" data-tab="reminders">
+          <a href="#reminders" class="nav-link" id="tabReminders">
+            <span class="nav-icon">⏰</span>
+            <span class="nav-label">TASKS & ALERTS</span>
+            <span class="nav-badge" id="reminderCountBadge">0</span>
+          </a>
+        </li>
+        <li class="nav-item" data-tab="planner">
+          <a href="#planner" class="nav-link" id="tabPlanner">
+            <span class="nav-icon">📅</span>
+            <span class="nav-label">TACTICAL PLAN</span>
+          </a>
+        </li>
+        <li class="nav-item" data-tab="comms">
+          <a href="#comms" class="nav-link" id="tabComms">
+            <span class="nav-icon">📬</span>
+            <span class="nav-label">COMMS & INBOX</span>
+            <span class="nav-badge" id="commsBadge">3</span>
+          </a>
+        </li>
+        <li class="nav-item" data-tab="memory">
+          <a href="#memory" class="nav-link" id="tabMemory">
+            <span class="nav-icon">🧠</span>
+            <span class="nav-label">MEMORY VAULT</span>
+          </a>
+        </li>
+        <li class="nav-item" data-tab="settings">
+          <a href="#settings" class="nav-link" id="tabSettings">
+            <span class="nav-icon">⚙️</span>
+            <span class="nav-label">SECURITY & CORE</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- CONTENT VIEWPORT -->
+    <main class="hud-main" id="contentViewport">
+
+      <!-- ============================================================== -->
+      <!-- MODULE 1: COMMAND CENTER (DASHBOARD)                           -->
+      <!-- ============================================================== -->
+      <section class="hud-section active" id="sec-dashboard">
+        
+        <!-- Welcome Hero Banner -->
+        <div class="stark-hero-card">
+          <div class="hero-left">
+            <span class="hero-badge">STARK TACTICAL INTERFACE</span>
+            <h2 class="hero-greeting" id="heroGreeting">Good day, Jayanesh.</h2>
+            <p class="hero-subtitle" id="heroSubtitle">All subsystems nominal. Neural core synchronized and standing by for commands.</p>
+          </div>
+          <div class="hero-right">
+            <div class="arc-reactor-large" id="mainReactorGlow">
+              <div class="arc-ring outer-ring"></div>
+              <div class="arc-ring inner-ring"></div>
+              <div class="arc-core-pulse"></div>
+              <span class="arc-kw">100% // READY</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Tactical Metrics -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-icon">⏰</div>
+            <div class="metric-info">
+              <span class="metric-value" id="metricActiveTasks">0</span>
+              <span class="metric-label">UPCOMING TASKS</span>
+            </div>
+            <div class="metric-trend text-cyan">ACTIVE</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon">🎯</div>
+            <div class="metric-info">
+              <span class="metric-value" id="metricCompletionRate">0%</span>
+              <span class="metric-label">TODAY'S COMPLETION</span>
+            </div>
+            <div class="metric-trend text-green" id="metricCompletionTag">ON TRACK</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon">⚡</div>
+            <div class="metric-info">
+              <span class="metric-value" id="metricFocusHours">4.5h</span>
+              <span class="metric-label">RECOMMENDED FOCUS</span>
+            </div>
+            <div class="metric-trend text-gold">PLAN READY</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon">🛡️</div>
+            <div class="metric-info">
+              <span class="metric-value" id="metricSecurityStatus">ON-DEVICE</span>
+              <span class="metric-label">PRIVACY MODE</span>
+            </div>
+            <div class="metric-trend text-cyan">ZERO CLOUD LEAK</div>
+          </div>
+        </div>
+
+        <!-- Dashboard Grid: Priority Directives + Quick Launch Shortcuts -->
+        <div class="dashboard-grid">
+          
+          <!-- Tactical Priorities Card -->
+          <div class="stark-card" id="priorityDirectivesCard">
+            <div class="card-header">
+              <h3 class="card-title"><span class="title-icon">🎯</span> PRIMARY DIRECTIVES</h3>
+              <button class="card-action-btn" id="refreshPlannerBtn">RE-EVALUATE</button>
+            </div>
+            <div class="card-body">
+              <div class="directive-list" id="dashboardDirectivesList">
+                <!-- Dynamically populated from active goals and reminders -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick System Actions & Web Intents -->
+          <div class="stark-card" id="quickActionsCard">
+            <div class="card-header">
+              <h3 class="card-title"><span class="title-icon">⚡</span> QUICK ACTIONS</h3>
+              <span class="card-badge">ONE-TAP</span>
+            </div>
+            <div class="card-body">
+              <!-- Featured Direct Call Amma -->
+              <button class="call-amma-dash-btn" id="dashCallAmmaBtn">
+                <span class="call-icon">📞</span>
+                <div class="call-text">
+                  <span class="call-title">CALL AMMA</span>
+                  <span class="call-sub">Tap to dial personal contact</span>
+                </div>
+                <span class="call-badge">INSTANT</span>
+              </button>
+
+              <div class="shortcuts-grid">
+                <button class="shortcut-btn" id="btnShortcutLinkedin">
+                  <span class="shortcut-icon">💼</span>
+                  <span class="shortcut-name">LinkedIn</span>
+                </button>
+                <button class="shortcut-btn" id="btnShortcutEmail">
+                  <span class="shortcut-icon">✉️</span>
+                  <span class="shortcut-name">Gmail</span>
+                </button>
+                <button class="shortcut-btn" id="btnShortcutCall">
+                  <span class="shortcut-icon">📱</span>
+                  <span class="shortcut-name">Dialler</span>
+                </button>
+                <button class="shortcut-btn" id="btnShortcutCalendar">
+                  <span class="shortcut-icon">📅</span>
+                  <span class="shortcut-name">Calendar</span>
+                </button>
+                <button class="shortcut-btn" id="btnShortcutCamera">
+                  <span class="shortcut-icon">📷</span>
+                  <span class="shortcut-name">Camera</span>
+                </button>
+                <button class="shortcut-btn" id="btnShortcutShare">
+                  <span class="shortcut-icon">📤</span>
+                  <span class="shortcut-name">Share</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SPOTIFY AUDIO AUTOMATION & MEDIA CONTROLLER -->
+        <div class="stark-card spotify-card" id="spotifyControllerCard" style="margin-bottom: 20px;">
+          <div class="card-header">
+            <h3 class="card-title"><span class="title-icon">💚</span> SPOTIFY AUTOMATION</h3>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span class="acc-status-tag" id="spotifyConnectionStatusTag" style="color: #10b981; border-color: rgba(16, 185, 129, 0.4);">⚡ AUTOMATION READY</span>
+              <button class="card-action-btn" id="openSpotifyConnectBtn">🔑 CONNECT API</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Now Playing & Controls Bar -->
+            <div style="background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 12px; padding: 14px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 44px; height: 44px; border-radius: 50%; background: #10b981; color: #000; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);">
+                  🎵
+                </div>
+                <div>
+                  <div style="font-weight: 700; color: #fff; font-size: 0.95rem;" id="spotifyNowPlayingTitle">Deep Work // Coding Sprints</div>
+                  <div style="font-size: 0.8rem; color: var(--text-dim);" id="spotifyNowPlayingArtist">Say "Play [Song] on Spotify" or tap below</div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <button class="btn-action" id="spotifyPrevBtn" title="Previous Track">⏮️</button>
+                <button class="btn-action btn-green-glow" id="spotifyPauseBtn" title="Pause / Play" style="padding: 6px 14px;">⏸️ PAUSE</button>
+                <button class="btn-action" id="spotifyNextBtn" title="Next Track">⏭️</button>
+              </div>
+            </div>
+
+            <!-- Instant Search & Play Bar -->
+            <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+              <input type="text" id="spotifySearchInput" class="stark-input" placeholder="Type song or artist (e.g. Interstellar, AR Rahman, Starboy)...">
+              <button class="btn-cyan" id="spotifySearchPlayBtn" style="white-space: nowrap;">▶️ PLAY</button>
+            </div>
+
+            <!-- One-Tap Quick Presets -->
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="shortcut-btn spotify-preset-btn" data-preset="coding" style="flex: 1; min-width: 130px; text-align: left; padding: 10px;">
+                <span class="shortcut-icon">🎧</span>
+                <span class="shortcut-name">Deep Work</span>
+              </button>
+              <button class="shortcut-btn spotify-preset-btn" data-preset="stark" style="flex: 1; min-width: 130px; text-align: left; padding: 10px;">
+                <span class="shortcut-icon">🚀</span>
+                <span class="shortcut-name">Stark Synthwave</span>
+              </button>
+              <button class="shortcut-btn spotify-preset-btn" data-preset="rahman" style="flex: 1; min-width: 130px; text-align: left; padding: 10px;">
+                <span class="shortcut-icon">🎼</span>
+                <span class="shortcut-name">A.R. Rahman</span>
+              </button>
+              <button class="shortcut-btn spotify-preset-btn" data-preset="focus" style="flex: 1; min-width: 130px; text-align: left; padding: 10px;">
+                <span class="shortcut-icon">🧠</span>
+                <span class="shortcut-name">Brain Food</span>
+              </button>
+            </div>
+
+            <div style="margin-top: 10px; text-align: right;">
+              <a id="spotifyDirectWebLink" target="_blank" style="display: none; font-size: 0.8rem; color: #10b981; text-decoration: underline;"></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Assistant Intelligence Feed -->
+        <div class="stark-card feed-card">
+          <div class="card-header">
+            <h3 class="card-title"><span class="title-icon">💬</span> RECENT ASSISTANT INTERACTION</h3>
+            <button class="card-action-btn" id="goToChatBtn">OPEN STUDIO ➤</button>
+          </div>
+          <div class="card-body">
+            <div class="recent-query-preview" id="recentQueryPreview">
+              <p class="preview-prompt">"JARVIS, status report."</p>
+              <p class="preview-response">All systems optimal, Commander. Your GATE study block is set for 7:00 PM, and your AWS workshop post draft is ready for review.</p>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- MODULE 2: NEURAL VOICE & CONVERSATION STUDIO                   -->
+      <!-- ============================================================== -->
+      <section class="hud-section" id="sec-voice">
+        <div class="voice-layout">
+          
+          <!-- Visualizer & Reactor Stage -->
+          <div class="voice-stage">
+            <div class="stark-orb-container">
+              <div class="pulse-aura" id="voicePulseAura"></div>
+              <button class="voice-orb" id="voiceOrbButton" aria-label="Toggle Voice Listening">
+                <div class="orb-core">
+                  <span class="orb-icon" id="orbMicIcon">🎙️</span>
+                </div>
+              </button>
+            </div>
+
+            <div class="voice-state-banner">
+              <span class="voice-status-pill" id="voiceStatusPill">STANDBY // TAP TO SPEAK</span>
+            </div>
+
+            <!-- Dynamic Frequency Bars -->
+            <div class="frequency-bars" id="frequencyBars">
+              <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+            </div>
+
+            <!-- Speech Parameter Knobs -->
+            <div class="speech-controls-row">
+              <div class="knob-group">
+                <label for="speechRate">Voice Speed: <span id="rateValue">1.0x</span></label>
+                <input type="range" id="speechRate" min="0.7" max="1.5" step="0.1" value="1.0">
+              </div>
+              <div class="knob-group">
+                <label for="speechPitch">Pitch Tone: <span id="pitchValue">1.0</span></label>
+                <input type="range" id="speechPitch" min="0.8" max="1.3" step="0.1" value="1.0">
+              </div>
+              <button class="stop-speech-btn" id="stopSpeechBtn" title="Silence Spoken Audio">⏹️ STOP SPEECH</button>
+            </div>
+          </div>
+
+          <!-- Conversation Log & Input Terminal -->
+          <div class="stark-terminal">
+            <div class="terminal-header">
+              <span class="terminal-title">NEURAL CONVERSATION LOG</span>
+              <button class="terminal-clear" id="clearChatHistoryBtn">CLEAR HISTORY</button>
+            </div>
+
+            <!-- Message Stream -->
+            <div class="chat-messages-container" id="chatMessagesContainer">
+              <!-- Chat bubbles rendered dynamically -->
+            </div>
+
+            <!-- Suggested Prompt Chips -->
+            <div class="prompt-chips-wrapper">
+              <button class="prompt-chip" data-query="What is the time now?">⏰ What is the time now?</button>
+              <button class="prompt-chip" data-query="Call Amma">📞 Call Amma</button>
+              <button class="prompt-chip" data-query="Check LinkedIn messages">💼 LinkedIn Messages</button>
+              <button class="prompt-chip" data-query="Check my email">✉️ Check Gmail</button>
+              <button class="prompt-chip" data-query="What do I need to do today?">🎯 Today's Directives</button>
+              <button class="prompt-chip" data-query="Remind me to study GATE at 7 PM">⏰ Study GATE at 7 PM</button>
+            </div>
+
+            <!-- Input Bar -->
+            <div class="terminal-input-bar">
+              <button class="mic-toggle-btn" id="terminalMicBtn" title="Push-to-Talk" aria-label="Microphone">🎙️</button>
+              <input type="text" class="terminal-text-input" id="terminalTextInput" placeholder="Type a directive or ask JARVIS..." autocomplete="off">
+              <button class="terminal-send-btn" id="terminalSendBtn" aria-label="Send Directive">
+                <span>EXECUTE ➤</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- MODULE 3: REMINDERS & TASK MANAGEMENT                          -->
+      <!-- ============================================================== -->
+      <section class="hud-section" id="sec-reminders">
+        
+        <div class="section-hero-row">
+          <div>
+            <h2 class="section-heading">TACTICAL REMINDERS & TASK MANAGEMENT</h2>
+            <p class="section-sub">Natural-language parsed, persistent local alerts with priority scheduling.</p>
+          </div>
+          <button class="btn-primary" id="openAddReminderModalBtn">+ CREATE DIRECTIVE</button>
+        </div>
+
+        <!-- Natural Language Quick-Add Bar -->
+        <div class="stark-card quick-reminder-bar">
+          <div class="input-with-button">
+            <input type="text" id="nlReminderInput" class="stark-input" placeholder="Type naturally: 'Remind me tomorrow at 7 PM to study GATE' or 'Practice Java at 4 PM'...">
+            <button class="btn-cyan" id="parseNlReminderBtn">PARSE & ADD ➤</button>
+          </div>
+          <div class="quick-tags-hint">
+            <span>Examples:</span>
+            <span class="hint-tag" data-sample="Remind me to study GATE at 7 PM">"Study GATE at 7 PM"</span>
+            <span class="hint-tag" data-sample="Submit project report tomorrow at 10 AM">"Submit project report tomorrow 10 AM"</span>
+            <span class="hint-tag" data-sample="Prepare presentation for Friday 3 PM">"Prepare presentation Friday 3 PM"</span>
+          </div>
+        </div>
+
+        <!-- Filter Navigation -->
+        <div class="filter-tabs-row">
+          <button class="filter-tab active" data-filter="all">ALL (<span id="countAll">0</span>)</button>
+          <button class="filter-tab" data-filter="active">PENDING (<span id="countActive">0</span>)</button>
+          <button class="filter-tab" data-filter="completed">RESOLVED (<span id="countCompleted">0</span>)</button>
+          <button class="filter-tab" data-filter="high">HIGH PRIORITY (<span id="countHigh">0</span>)</button>
+        </div>
+
+        <!-- Reminders List -->
+        <div class="reminders-grid" id="remindersContainer">
+          <!-- Dynamically populated reminder cards -->
+        </div>
+
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- MODULE 4: DAILY TACTICAL PLANNER                               -->
+      <!-- ============================================================== -->
+      <section class="hud-section" id="sec-planner">
+        
+        <div class="section-hero-row">
+          <div>
+            <h2 class="section-heading">DAILY TACTICAL PLANNER</h2>
+            <p class="section-sub">Algorithmic time allocation aligned with your goals, exams, and sprint deadlines.</p>
+          </div>
+          <button class="btn-cyan" id="recalcPlanBtn">⚡ RECALCULATE SCHEDULE</button>
+        </div>
+
+        <!-- Hours Allocation Input -->
+        <div class="stark-card planner-setup-card">
+          <div class="planner-setup-row">
+            <div class="setup-field">
+              <label for="availableHoursInput">Available Hours Today:</label>
+              <input type="number" id="availableHoursInput" class="stark-input-sm" min="1" max="16" value="6">
+            </div>
+            <div class="setup-field">
+              <label for="primaryFocusInput">Primary Focus Area:</label>
+              <select id="primaryFocusInput" class="stark-select">
+                <option value="gate">GATE Examination Preparation</option>
+                <option value="coding">Software Architecture & Coding</option>
+                <option value="projects">AWS & AI Project Development</option>
+                <option value="balanced">Balanced Tactical Schedule</option>
+              </select>
+            </div>
+            <div class="setup-action">
+              <button class="btn-primary" id="applyPlanSettingsBtn">APPLY PARAMETERS</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Time-Blocked Daily Plan Schedule -->
+        <div class="stark-card">
+          <div class="card-header">
+            <h3 class="card-title">TACTICAL TIMELINE // TODAY</h3>
+            <span class="card-badge" id="planGeneratedTime">AI SYNTHESIZED</span>
+          </div>
+          <div class="card-body">
+            <div class="timeline-container" id="tacticalTimeline">
+              <!-- Dynamically rendered schedule blocks -->
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- MODULE 5: COMMUNICATIONS & INBOX HUB                           -->
+      <!-- ============================================================== -->
+      <section class="hud-section" id="sec-comms">
+        
+        <div class="section-hero-row">
+          <div>
+            <h2 class="section-heading">COMMUNICATIONS & INBOX HUB</h2>
+            <p class="section-sub">Direct access to your LinkedIn & Gmail. One-tap direct call to Amma.</p>
+          </div>
+        </div>
+
+        <!-- Speed Dial Card (Call Amma) -->
+        <div class="stark-card speed-dial-hero-card">
+          <div class="card-header">
+            <h3 class="card-title"><span class="title-icon">📞</span> PRIORITY SPEED DIAL</h3>
+            <span class="card-badge">VOICE DIRECTIVE: "CALL AMMA"</span>
+          </div>
+          <div class="card-body">
+            <div class="call-amma-featured-box">
+              <div class="amma-details">
+                <div class="amma-avatar">❤️</div>
+                <div>
+                  <h4 class="amma-title">Amma (Personal Contact)</h4>
+                  <p class="amma-desc">Speak "Call Amma" to dial directly, or tap the button below.</p>
+                </div>
+              </div>
+              <button class="btn-green-glow" id="commsCallAmmaBtn">
+                <span>📞 CALL AMMA NOW</span>
+              </button>
+            </div>
+
+            <div class="amma-phone-setting-row">
+              <label for="ammaPhoneInput">Amma's Phone Number:</label>
+              <div class="input-with-button">
+                <input type="tel" id="ammaPhoneInput" class="stark-input" placeholder="e.g. +91 98765 43210">
+                <button class="btn-cyan" id="saveAmmaPhoneBtn">SAVE NUMBER</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Linked Accounts Hub (LinkedIn & Gmail) -->
+        <div class="stark-card linked-accounts-card">
+          <div class="card-header">
+            <h3 class="card-title"><span class="title-icon">🔗</span> LINKED PERSONAL PROFILES</h3>
+            <span class="card-badge text-green">2 ACCOUNTS LINKED</span>
+          </div>
+          <div class="card-body">
+            <div class="linked-accounts-grid">
+              <!-- LinkedIn Profile Card -->
+              <div class="linked-acc-tile">
+                <div class="acc-tile-header">
+                  <div class="acc-brand-badge linkedin">💼 LINKEDIN</div>
+                  <span class="acc-status-tag">🟢 CONNECTED</span>
+                </div>
+                <h4 class="acc-name">Jayanesh</h4>
+                <p class="acc-id">https://linkedin.com/in/jayanesh2494/</p>
+                <div class="acc-actions">
+                  <button class="btn-action btn-cyan" id="openLinkedInMessagesBtn">💬 OPEN MESSAGES</button>
+                  <button class="btn-action" id="openLinkedInProfileBtn">VIEW PROFILE</button>
+                </div>
+              </div>
+
+              <!-- Gmail Account Card -->
+              <div class="linked-acc-tile">
+                <div class="acc-tile-header">
+                  <div class="acc-brand-badge gmail">✉️ GMAIL</div>
+                  <span class="acc-status-tag" id="gmailStatusTag">⚡ REAL-TIME READY</span>
+                </div>
+                <h4 class="acc-name">Jayanesh Dhanakkotti</h4>
+                <p class="acc-id">jayaneshdhanakkotti@gmail.com</p>
+                <div class="acc-actions" style="flex-wrap: wrap;">
+                  <button class="btn-action btn-cyan" id="openGmailInboxBtn">📬 OPEN INBOX</button>
+                  <button class="btn-action btn-amber-glow" id="openImportantGmailBtn">⭐ IMPORTANT EMAILS</button>
+                  <button class="btn-action" id="openConnectGmailModalBtn">🔑 CONNECT APP PWD</button>
+                  <button class="btn-action" id="openGmailComposeBtn">COMPOSE</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Contacts List -->
+        <div class="stark-card">
+          <div class="card-header">
+            <h3 class="card-title"><span class="title-icon">👥</span> QUICK CALL CONTACTS</h3>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="card-action-btn btn-cyan" id="importPhoneContactsBtn">📱 SYNC PHONE CONTACTS</button>
+              <button class="card-action-btn" id="addCustomContactBtn">+ ADD CONTACT</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="contacts-grid" id="contactsListContainer">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Inbox & Notification Stream -->
+        <div class="stark-card">
+          <div class="card-header">
+            <h3 class="card-title"><span class="title-icon">📥</span> LIVE COMMUNICATIONS & NOTIFICATIONS FEED</h3>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <button class="card-action-btn" id="syncLiveGmailBtn">🔄 SYNC GMAIL NOW</button>
+              <button class="card-action-btn" id="clearSampleDataBtn" style="border-color: rgba(239, 68, 68, 0.4); color: #f87171;">🗑️ CLEAR SAMPLE DATA</button>
+              <div class="filter-pills-row">
+                <button class="comms-filter-btn active" data-filter="all">ALL</button>
+                <button class="comms-filter-btn" data-filter="linkedin">LINKEDIN</button>
+                <button class="comms-filter-btn" data-filter="gmail">GMAIL</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="comms-messages-list" id="commsMessagesContainer">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- MODULE 6: PERSONAL MEMORY & COGNITIVE VAULT                    -->
+      <!-- ============================================================== -->
+      <section class="hud-section" id="sec-memory">
+        
+        <div class="section-hero-row">
+          <div>
+            <h2 class="section-heading">PERSONAL MEMORY & COGNITIVE VAULT</h2>
+            <p class="section-sub">Approved goals, preferences, and projects stored safely on your device.</p>
+          </div>
+          <div class="header-buttons-row">
+            <button class="btn-action" id="exportDataBtn">📥 EXPORT DATA (JSON)</button>
+            <button class="btn-action btn-danger" id="wipeDataBtn">⚠️ CLEAR MEMORY</button>
+          </div>
+        </div>
+
+        <div class="memory-grid">
+          
+          <!-- Identity & Goals -->
+          <div class="stark-card">
+            <div class="card-header">
+              <h3 class="card-title"><span class="title-icon">👤</span> USER IDENTITY & CORE GOALS</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="memUserName">Commander / Display Name:</label>
+                <input type="text" id="memUserName" class="stark-input" value="Commander">
+              </div>
+              <div class="form-group">
+                <label for="memPrimaryGoal">Primary Career Goal:</label>
+                <input type="text" id="memPrimaryGoal" class="stark-input" value="Cracking GATE Examination & Building Advanced AI Systems">
+              </div>
+              <div class="form-group">
+                <label for="memLearningInterests">Learning Focus & Interests (comma-separated):</label>
+                <input type="text" id="memLearningInterests" class="stark-input" value="Algorithms, System Design, Android Kotlin, PyTorch, Cloud Architecture">
+              </div>
+              <button class="btn-cyan" id="saveIdentityBtn">SAVE IDENTITY PROFILES</button>
+            </div>
+          </div>
+
+          <!-- Response Style & Preferences -->
+          <div class="stark-card">
+            <div class="card-header">
+              <h3 class="card-title"><span class="title-icon">⚙️</span> ASSISTANT PERSONALITY PREFERENCES</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="memResponseStyle">Preferred Response Style:</label>
+                <select id="memResponseStyle" class="stark-select">
+                  <option value="concise">Concise, Direct & Tactical (Jarvis standard)</option>
+                  <option value="academic">Detailed, Technical & Pedagogical</option>
+                  <option value="motivational">Energetic & Proactive High-Performance</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="memAutoVocalize" checked>
+                  <span>Auto-vocalize responses through speech synthesis</span>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="memOfflineFirst" checked>
+                  <span>Offline-first mode (keep private data strictly on device)</span>
+                </label>
+              </div>
+
+              <button class="btn-cyan" id="savePreferencesBtn">UPDATE PREFERENCES</button>
+            </div>
+          </div>
+
+          <!-- Saved Notes & Knowledge Snippets -->
+          <div class="stark-card full-width">
+            <div class="card-header">
+              <h3 class="card-title"><span class="title-icon">📝</span> KNOWLEDGE SNIPPETS & SAVED NOTES</h3>
+              <button class="card-action-btn" id="addNoteBtn">+ ADD NOTE</button>
+            </div>
+            <div class="card-body">
+              <div class="notes-list" id="notesListContainer">
+                <!-- Dynamically rendered notes cards -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- MODULE 7: SECURITY, SYSTEM CORE & INTEGRATIONS                 -->
+      <!-- ============================================================== -->
+      <section class="hud-section" id="sec-settings">
+        
+        <div class="section-hero-row">
+          <div>
+            <h2 class="section-heading">SYSTEM CORE & SECURITY ARCHITECTURE</h2>
+            <p class="section-sub">Hardware telemetry, permission scopes, and local AI model management.</p>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          
+          <!-- Local AI Engine Configuration -->
+          <div class="stark-card">
+            <div class="card-header">
+              <h3 class="card-title"><span class="title-icon">🤖</span> LOCAL AI INFERENCE ENGINE</h3>
+              <span class="card-badge" id="aiEngineStatusBadge">RULE-BASED + INTENT ROUTER</span>
+            </div>
+            <div class="card-body">
+              <p class="card-desc">
+                JARVIS is architected with a local-first intent router that processes commands on-device without cloud dependence.
+              </p>
+              <div class="spec-row">
+                <span class="spec-label">Active Inference Engine:</span>
+                <span class="spec-value text-cyan">Autonomous Intent Classifier & Regex Parser</span>
+              </div>
+              <div class="spec-row">
+                <span class="spec-label">Mobile Local LLM Target:</span>
+                <span class="spec-value">MediaPipe / Gemma 2B (Android ONNX/GGUF)</span>
+              </div>
+              <div class="spec-row">
+                <span class="spec-label">Cloud Exfiltration Guard:</span>
+                <span class="spec-value text-green">100% PROTECTED (No API Keys Sent)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Permission Telemetry -->
+          <div class="stark-card">
+            <div class="card-header">
+              <h3 class="card-title"><span class="title-icon">🛡️</span> DEVICE PERMISSION SCOPES</h3>
+            </div>
+            <div class="card-body">
+              <div class="permission-item">
+                <div class="perm-info">
+                  <span class="perm-name">Microphone Access (Web Speech STT)</span>
+                  <span class="perm-desc">Required for hands-free speech recognition</span>
+                </div>
+                <button class="btn-perm" id="requestMicPermBtn">TEST MIC</button>
+              </div>
+
+              <div class="permission-item">
+                <div class="perm-info">
+                  <span class="perm-name">System Notifications</span>
+                  <span class="perm-desc">Delivers reminder alerts when tasks are due</span>
+                </div>
+                <button class="btn-perm" id="requestNotifPermBtn">ENABLE</button>
+              </div>
+
+              <div class="permission-item">
+                <div class="perm-info">
+                  <span class="perm-name">Local Persistent Storage</span>
+                  <span class="perm-desc">Stores memory, reminders, and daily tactical plans</span>
+                </div>
+                <span class="perm-badge-active">ACTIVE</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL: ADD / EDIT REMINDER -->
+  <div class="stark-modal-overlay hidden" id="reminderModal">
+    <div class="stark-modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="reminderModalTitle">CREATE NEW DIRECTIVE</h3>
+        <button class="modal-close-btn" id="closeReminderModalBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="reminderForm">
+          <div class="form-group">
+            <label for="modalReminderTitle">Title / Task Description:</label>
+            <input type="text" id="modalReminderTitle" class="stark-input" required placeholder="e.g. Study GATE Engineering Mathematics">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="modalReminderDate">Date:</label>
+              <input type="date" id="modalReminderDate" class="stark-input" required>
+            </div>
+            <div class="form-group">
+              <label for="modalReminderTime">Time:</label>
+              <input type="time" id="modalReminderTime" class="stark-input" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="modalReminderPriority">Priority:</label>
+              <select id="modalReminderPriority" class="stark-select">
+                <option value="high">High (Red Alert)</option>
+                <option value="medium" selected>Medium (Standard)</option>
+                <option value="low">Low (Discretionary)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="modalReminderCategory">Category:</label>
+              <select id="modalReminderCategory" class="stark-select">
+                <option value="study" selected>Study / GATE</option>
+                <option value="coding">Coding & Sprints</option>
+                <option value="work">Work & Professional</option>
+                <option value="personal">Personal Routine</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn-action" id="cancelReminderBtn">CANCEL</button>
+            <button type="submit" class="btn-cyan">SAVE DIRECTIVE</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONNECT GMAIL LIVE IMAP -->
+  <div class="stark-modal-overlay hidden" id="connectGmailModal">
+    <div class="stark-modal">
+      <div class="modal-header">
+        <h3 class="modal-title">CONNECT REAL GMAIL // LIVE IMAP</h3>
+        <button class="modal-close-btn" id="closeConnectGmailModalBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 12px; line-height: 1.4;">
+          To stream real-time important emails directly to JARVIS for <strong style="color: var(--cyan-core);">jayaneshdhanakkotti@gmail.com</strong>, connect with a Google App Password:
+        </p>
+
+        <div style="background: rgba(0, 242, 254, 0.05); border: 1px solid rgba(0, 242, 254, 0.2); border-radius: 8px; padding: 12px; margin-bottom: 16px; font-size: 0.8rem; line-height: 1.5;">
+          <div style="color: var(--cyan-core); font-weight: 700; margin-bottom: 4px;">⚡ 3-Step Setup (Takes 30 seconds):</div>
+          <div>1. Go to <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color: var(--cyan-core); text-decoration: underline;">Google App Passwords</a> (ensure 2FA is active).</div>
+          <div>2. Type app name <strong>"JARVIS"</strong> and tap <strong>Create</strong>.</div>
+          <div>3. Copy the 16-character code generated and paste it below:</div>
+        </div>
+
+        <form id="connectGmailForm">
+          <div class="form-group">
+            <label for="gmailAppPasswordInput">Google App Password (16 letters):</label>
+            <input type="text" id="gmailAppPasswordInput" class="stark-input" placeholder="e.g. abcd efgh ijkl mnop" required autocomplete="off">
+          </div>
+          <div class="modal-actions" style="margin-top: 16px;">
+            <button type="button" class="btn-action" id="cancelConnectGmailBtn">CANCEL</button>
+            <button type="submit" class="btn-cyan" id="submitConnectGmailBtn">TEST &amp; CONNECT INBOX</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SPOTIFY API CONNECT (OPTIONAL FULL PLAYER SDK) -->
+  <div class="stark-modal-overlay hidden" id="spotifyConnectModal">
+    <div class="stark-modal">
+      <div class="modal-header">
+        <h3 class="modal-title">CONNECT SPOTIFY WEB API // OAUTH</h3>
+        <button class="modal-close-btn" id="closeSpotifyModalBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; padding: 14px; margin-bottom: 16px; font-size: 0.85rem; line-height: 1.5;">
+          <div style="color: #10b981; font-weight: 800; font-size: 0.95rem; margin-bottom: 6px;">📱 MOBILE PHONE USERS: ZERO SETUP REQUIRED!</div>
+          <p style="color: #e2e8f0; margin-bottom: 8px;">
+            Your phone <strong>does not need any Redirect URIs or Spotify Developer keys</strong>. JARVIS uses <strong>Instant App Deep-Links</strong> to command your installed Spotify App directly!
+          </p>
+          <button type="button" class="btn-cyan" style="width: 100%; padding: 10px; font-size: 0.8rem;" onclick="if(window.SpotifyController) window.SpotifyController.playViaDeepLink('AR Rahman')">
+            ▶️ TEST SPOTIFY APP LAUNCH ON YOUR PHONE
+          </button>
+        </div>
+
+        <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px; font-size: 0.8rem; line-height: 1.45; color: #fde68a;">
+          <strong style="color: #f59e0b;">⚠️ Why Spotify Dashboard Rejected 192.168.1.10:</strong><br>
+          Spotify's security firewall strictly <strong>forbids private LAN IP addresses</strong> (like <code>192.168.x.x</code>). It only accepts <code>http://127.0.0.1:8080/</code> or <code>http://localhost:8080/</code> for local desktop use. You never need to enter LAN IPs in Spotify!
+        </div>
+
+        <form id="spotifyConnectForm">
+          <div class="form-group">
+            <label for="spotifyClientIdInput">Spotify Client ID (Pre-configured):</label>
+            <input type="text" id="spotifyClientIdInput" class="stark-input" value="5a925f0b5243435388a491d4b127c13b" required autocomplete="off">
+          </div>
+          <p style="color: var(--text-dim); font-size: 0.75rem; margin-top: -6px; margin-bottom: 12px;">
+            If testing on desktop browser, ensure Spotify Dashboard Redirect URI is strictly: <code style="color: #00f2fe;">http://127.0.0.1:8080/</code>
+          </p>
+          <div class="modal-actions">
+            <button type="button" class="btn-action" id="cancelSpotifyModalBtn">CLOSE</button>
+            <button type="submit" class="btn-action btn-cyan">CONNECT WEB SDK (DESKTOP)</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADS-UP NOTIFICATION BANNER -->
+  <div class="hud-banner hidden" id="hudBanner">
+    <div class="banner-content">
+      <span class="banner-icon" id="bannerIcon">⚡</span>
+      <span class="banner-text" id="bannerText">Notification message</span>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT MODULE SCRIPTS -->
+  <script src="./js/memory.js?v=1.7.1"></script>
+  <script src="./js/intentRouter.js?v=1.7.1"></script>
+  <script src="./js/voice.js?v=1.7.1"></script>
+  <script src="./js/reminders.js?v=1.7.1"></script>
+  <script src="./js/planner.js?v=1.7.1"></script>
+  <script src="./js/comms.js?v=1.7.1"></script>
+  <script src="./js/spotify.js?v=1.7.1"></script>
+  <script src="./js/shortcuts.js?v=1.7.1"></script>
+  <script src="./js/app.js?v=1.7.1"></script>
+
+</body>
+</html>

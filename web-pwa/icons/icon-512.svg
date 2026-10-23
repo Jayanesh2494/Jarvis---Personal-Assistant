@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0a1538"/>
+      <stop offset="100%" stop-color="#030712"/>
+    </radialGradient>
+    <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="30%" stop-color="#00f2fe"/>
+      <stop offset="70%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </radialGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  
+  <!-- Outer Background -->
+  <rect width="512" height="512" rx="110" fill="url(#bgGrad)"/>
+  <rect width="504" height="504" x="4" y="4" rx="106" fill="none" stroke="#00f2fe" stroke-width="2" stroke-opacity="0.3"/>
+
+  <!-- Arc Reactor Outer Ring -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#00f2fe" stroke-width="6" stroke-dasharray="14 8" stroke-opacity="0.7"/>
+  <circle cx="256" cy="256" r="150" fill="none" stroke="#38bdf8" stroke-width="3" stroke-opacity="0.5"/>
+  <circle cx="256" cy="256" r="120" fill="none" stroke="#00f2fe" stroke-width="8" filter="url(#glow)"/>
+
+  <!-- Core Triangles / Arc Panels -->
+  <g stroke="#00f2fe" stroke-width="4" fill="rgba(0, 242, 254, 0.1)">
+    <polygon points="256,150 286,210 226,210"/>
+    <polygon points="340,210 320,270 270,240"/>
+    <polygon points="310,320 256,290 280,350"/>
+    <polygon points="202,320 232,350 256,290"/>
+    <polygon points="172,210 242,240 192,270"/>
+  </g>
+
+  <!-- Glowing Core -->
+  <circle cx="256" cy="256" r="65" fill="url(#coreGlow)" filter="url(#glow)"/>
+
+  <!-- Futuristic JARVIS Lettering -->
+  <text x="256" y="278" font-family="'Orbitron', 'Inter', -apple-system, sans-serif" font-size="64" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="4">J</text>
+  <text x="256" y="440" font-family="'Orbitron', 'Inter', -apple-system, sans-serif" font-size="28" font-weight="800" fill="#00f2fe" text-anchor="middle" letter-spacing="10">JARVIS</text>
+</svg>
