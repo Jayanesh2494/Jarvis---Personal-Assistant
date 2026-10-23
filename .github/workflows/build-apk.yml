@@ -30,23 +30,14 @@ jobs:
       - name: Build Debug APK
         run: |
           cd android-app
-          ./gradlew assembleDebug --stacktrace --no-daemon
-          mkdir -p ../dist
-          cp -v app/build/outputs/apk/debug/*.apk ../dist/ || find . -name "*.apk" -exec cp -v {} ../dist/ \;
-          ls -la ../dist/
+          ./gradlew :app:assembleDebug --stacktrace
+          mkdir -p "$RUNNER_TEMP/apk_output"
+          find . -name "*.apk" -exec cp -v {} "$RUNNER_TEMP/apk_output/" \;
+          ls -la "$RUNNER_TEMP/apk_output/"
 
       - name: Upload Debug APK Artifact
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: jarvis-debug-apk
-          path: dist/*.apk
+          path: ${{ runner.temp }}/apk_output/*.apk
           retention-days: 14
-
-      - name: Upload Build Log on Failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gradle-build-log
-          path: android-app/gradle-build.log
-          retention-days: 7
