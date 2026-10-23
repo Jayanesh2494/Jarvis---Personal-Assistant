@@ -88,8 +88,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
 
-    // MediaPipe GenAI for On-Device LLM (Gemma 2B)
-    implementation(libs.mediapipe.tasks.genai)
+    // MediaPipe GenAI for On-Device LLM (Gemma 2B) - optional modular add-on
+    // implementation(libs.mediapipe.tasks.genai)
 
     // Testing
     testImplementation(libs.junit)
