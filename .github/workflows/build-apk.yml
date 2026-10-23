@@ -30,14 +30,26 @@ jobs:
       - name: Build Debug APK
         run: |
           cd android-app
-          ./gradlew :app:assembleDebug --stacktrace
-          mkdir -p "$RUNNER_TEMP/apk_output"
-          find . -name "*.apk" -exec cp -v {} "$RUNNER_TEMP/apk_output/" \;
-          ls -la "$RUNNER_TEMP/apk_output/"
+          set -o pipefail
+          ./gradlew assembleDebug --stacktrace 2>&1 | tee gradle-build.log || {
+            echo "## ❌ Gradle Build Error Log" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -n 80 gradle-build.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            exit 1
+          }
+          echo "## ✅ Gradle Build Succeeded" >> $GITHUB_STEP_SUMMARY
+          echo "### Generated APK Files:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          find . -name "*.apk" | tee -a $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          mkdir -p ../dist
+          find . -name "*.apk" -exec cp -v {} ../dist/ \; || true
+          ls -la ../dist/
 
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: jarvis-debug-apk
-          path: ${{ runner.temp }}/apk_output/*.apk
+          path: dist/*.apk
           retention-days: 14
